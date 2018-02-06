@@ -26,6 +26,7 @@ require 'google/logging/v2/logging_pb'
 require 'google/logging/v2/logging_services_pb'
 require 'google/logging/v2/log_entry_pb'
 require 'googleauth'
+require 'ruby-prof'
 
 require_relative 'monitoring'
 
@@ -495,6 +496,9 @@ module Fluent
     end
 
     def write(chunk)
+      RubyProf.measure_mode = RubyProf::PROCESS_TIME
+      profiler = RubyProf::Profile.new
+      profiler.start
       grouped_entries = group_log_entries_by_tag_and_local_resource_id(chunk)
 
       requests_to_send = []
@@ -592,6 +596,14 @@ module Fluent
           combined_entries.concat(request[:entries])
         end
         @write_request.call(entries: combined_entries)
+      end
+      result = profiler.stop
+      out_file = File.open("/tmp/out.txt", "a+") do |f|
+        # print a flat profile to text
+        f.write("\n========== Start of RubyProf::Result ==========\n")
+        printer = RubyProf::FlatPrinter.new(result)
+        printer.print(f, {:print_file => true})
+        f.write("\n========== End of RubyProf::Result ==========\n")
       end
     end
 
