@@ -496,7 +496,7 @@ module Fluent
     end
 
     def write(chunk)
-      RubyProf.measure_mode = RubyProf::PROCESS_TIME
+      RubyProf.measure_mode = RubyProf::CPU_TIME
       profiler = RubyProf::Profile.new
       profiler.start
       grouped_entries = group_log_entries_by_tag_and_local_resource_id(chunk)
@@ -598,13 +598,8 @@ module Fluent
         @write_request.call(entries: combined_entries)
       end
       result = profiler.stop
-      out_file = File.open("/tmp/out.txt", "a+") do |f|
-        # print a flat profile to text
-        f.write("\n========== Start of RubyProf::Result ==========\n")
-        printer = RubyProf::FlatPrinter.new(result)
-        printer.print(f, {:print_file => true})
-        f.write("\n========== End of RubyProf::Result ==========\n")
-      end
+      printer = RubyProf::MultiPrinter.new(result)
+      printer.print(:path => "/tmp", :profile => "profile", :min_percent => 1)
     end
 
     private
