@@ -653,6 +653,8 @@ module Fluent
           insert_id = record.delete(@insert_id_key)
           entry.insert_id = insert_id if insert_id
 
+          compute_source_location(record)
+
           set_log_entry_fields(record, entry)
           set_payload(entry_level_resource.type, record, entry, is_json)
 
@@ -700,6 +702,16 @@ module Fluent
       return trace unless @autoformat_stackdriver_trace &&
                           STACKDRIVER_TRACE_ID_REGEXP.match(trace)
       "projects/#{@project_id}/traces/#{trace}"
+    end
+
+    def compute_source_location(record)
+      if record.key?(@source_location_key)
+        source_location_string = record[@source_location_key]
+        source_location_parts = source_location_string.split(':')
+        file = source_location_parts[0]
+        line = source_location_parts[1]
+        record[@source_location_key] = {"file" => file, "line" => line}
+      end
     end
 
     def construct_log_entry_in_grpc_format(labels,
