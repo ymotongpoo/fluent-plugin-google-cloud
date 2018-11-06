@@ -170,6 +170,8 @@ module Fluent
       # https://cloud.google.com/trace/docs/reference/v2/rpc/google.devtools.cloudtrace.v1#trace
       STACKDRIVER_TRACE_ID_REGEXP = Regexp.new('^\h{32}$').freeze
 
+      # SOURCE_LOCATION_REGEXP = Regexp.new('^(?<file>[^:]+):(?<line>.*)$').freeze
+
       # Map from each field name under LogEntry to corresponding variables
       # required to perform field value extraction from the log record.
       LOG_ENTRY_FIELDS_MAP = {
@@ -653,7 +655,7 @@ module Fluent
           insert_id = record.delete(@insert_id_key)
           entry.insert_id = insert_id if insert_id
 
-          compute_source_location(record)
+          # compute_source_location(record)
 
           set_log_entry_fields(record, entry)
           set_payload(entry_level_resource.type, record, entry, is_json)
@@ -704,15 +706,19 @@ module Fluent
       "projects/#{@project_id}/traces/#{trace}"
     end
 
-    def compute_source_location(record)
-      if record.key?(@source_location_key)
-        source_location_string = record[@source_location_key]
-        source_location_parts = source_location_string.split(':')
-        file = source_location_parts[0]
-        line = source_location_parts[1]
-        record[@source_location_key] = {"file" => file, "line" => line}
-      end
-    end
+    # def compute_source_location(record)
+    #   SOURCE_LOCATION_REGEXP.match()
+    #   if record.key?(@source_location_key)
+    #     source_location_string = record[@source_location_key]
+    #     if source_location_string.is_a?(String)
+    #       # Assumes that the string will be in form "<file name>:<line number>"
+    #       source_location_parts = source_location_string.split(':')
+    #       file = source_location_parts[0]
+    #       line = source_location_parts[1]
+    #       record[@source_location_key] = {"file" => file, "line" => line}
+    #     end
+    #   end
+    # end
 
     def construct_log_entry_in_grpc_format(labels,
                                            resource,
@@ -1691,6 +1697,7 @@ module Fluent
         begin
           payload_key = instance_variable_get(payload_key)
           fields = record[payload_key]
+          @log.error "PK: #{payload_key}, fields: #{fields}"
           next unless fields.is_a?(Hash)
 
           extracted_subfields = subfields.each_with_object({}) \
