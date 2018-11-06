@@ -1697,7 +1697,9 @@ module Fluent
         begin
           payload_key = instance_variable_get(payload_key)
           fields = record[payload_key]
-          @log.info "PK: #{payload_key}, fields: #{fields}"
+          if payload_key == @source_location_key
+            puts "PK: #{payload_key}, record: #{record}"
+          end
           next unless fields.is_a?(Hash)
 
           extracted_subfields = subfields.each_with_object({}) \
