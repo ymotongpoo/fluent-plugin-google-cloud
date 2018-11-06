@@ -656,7 +656,8 @@ module Fluent
           entry.insert_id = insert_id if insert_id
 
           # compute_source_location(record)
-
+          puts "record: #{record}"
+          @in_sl = false
           set_log_entry_fields(record, entry)
           set_payload(entry_level_resource.type, record, entry, is_json)
 
@@ -1695,10 +1696,12 @@ module Fluent
       LOG_ENTRY_FIELDS_MAP.each do |field_name, config|
         payload_key, subfields, grpc_class, non_grpc_class = config
         begin
+          @in_sl = false
           payload_key = instance_variable_get(payload_key)
           fields = record[payload_key]
           if payload_key == @source_location_key
-            puts "PK: #{payload_key}, record: #{record}"
+            @in_sl = true
+          #   puts "PK: #{payload_key}, record: #{record}"
           end
           next unless fields.is_a?(Hash)
 
@@ -1838,10 +1841,16 @@ module Fluent
     end
 
     def parse_string(value)
+      if @in_sl
+        puts "parsed file: #{value} -> #{value.to_s}"
+      end
       value.to_s
     end
 
     def parse_int(value)
+      if @in_sl
+        puts "parsed line: #{value} -> #{value.to_i}"
+      end
       value.to_i
     end
 
