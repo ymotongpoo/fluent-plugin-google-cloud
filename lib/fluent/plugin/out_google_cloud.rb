@@ -1697,7 +1697,7 @@ module Fluent
         begin
           payload_key = instance_variable_get(payload_key)
           fields = record[payload_key]
-          @log.error "PK: #{payload_key}, fields: #{fields}"
+          @log.info "PK: #{payload_key}, fields: #{fields}"
           next unless fields.is_a?(Hash)
 
           extracted_subfields = subfields.each_with_object({}) \
