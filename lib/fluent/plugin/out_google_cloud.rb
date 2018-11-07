@@ -1701,7 +1701,7 @@ module Fluent
           fields = record[payload_key]
           if payload_key == @source_location_key
             @in_sl = true
-            puts "cbrew: #{fields.is_a?(Hash)}"
+            puts "cbrew: IT'S ACTUALLY UGH A #{fields.class}"
           #   puts "PK: #{payload_key}, record: #{record}"
           end
           next unless fields.is_a?(Hash)
