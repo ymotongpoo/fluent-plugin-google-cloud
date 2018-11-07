@@ -1707,6 +1707,10 @@ module Fluent
             puts "cbrew: record in slef: #{record}"
           #   puts "PK: #{payload_key}, record: #{record}"
           end
+          if fields.nil? 
+            puts "cbrew: deleting #{payload_key} bc nil"
+            record.delete(payload_key)
+          end
           next unless fields.is_a?(Hash)
 
           extracted_subfields = subfields.each_with_object({}) \
