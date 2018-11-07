@@ -656,7 +656,7 @@ module Fluent
           entry.insert_id = insert_id if insert_id
 
           # compute_source_location(record)
-          puts "record: #{record}"
+          puts "cbrew record: #{record}"
           @in_sl = false
           set_log_entry_fields(record, entry)
           set_payload(entry_level_resource.type, record, entry, is_json)
@@ -1701,6 +1701,7 @@ module Fluent
           fields = record[payload_key]
           if payload_key == @source_location_key
             @in_sl = true
+            puts "cbrew: #{fields.is_a?(Hash)}"
           #   puts "PK: #{payload_key}, record: #{record}"
           end
           next unless fields.is_a?(Hash)
@@ -1842,14 +1843,14 @@ module Fluent
 
     def parse_string(value)
       if @in_sl
-        puts "parsed file: #{value} -> #{value.to_s}"
+        puts "cbrew parsed file: #{value} -> #{value.to_s}"
       end
       value.to_s
     end
 
     def parse_int(value)
       if @in_sl
-        puts "parsed line: #{value} -> #{value.to_i}"
+        puts "cbrew parsed line: #{value} -> #{value.to_i}"
       end
       value.to_i
     end
