@@ -656,7 +656,9 @@ module Fluent
           entry.insert_id = insert_id if insert_id
 
           # compute_source_location(record)
-          puts "cbrew record: #{record}"
+          is_json = false
+          puts "cbrew: record: #{record}"
+          puts "cbrew: type before #{record['logging.googleapis.com/sourceLocation'].class}"
           @in_sl = false
           set_log_entry_fields(record, entry)
           set_payload(entry_level_resource.type, record, entry, is_json)
@@ -1702,6 +1704,7 @@ module Fluent
           if payload_key == @source_location_key
             @in_sl = true
             puts "cbrew: IT'S ACTUALLY UGH A #{fields.class}"
+            puts "cbrew: record in slef: #{record}"
           #   puts "PK: #{payload_key}, record: #{record}"
           end
           next unless fields.is_a?(Hash)
