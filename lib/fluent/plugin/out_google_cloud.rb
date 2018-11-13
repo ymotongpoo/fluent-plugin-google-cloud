@@ -170,8 +170,6 @@ module Fluent
       # https://cloud.google.com/trace/docs/reference/v2/rpc/google.devtools.cloudtrace.v1#trace
       STACKDRIVER_TRACE_ID_REGEXP = Regexp.new('^\h{32}$').freeze
 
-      # SOURCE_LOCATION_REGEXP = Regexp.new('^(?<file>[^:]+):(?<line>.*)$').freeze
-
       # Map from each field name under LogEntry to corresponding variables
       # required to perform field value extraction from the log record.
       LOG_ENTRY_FIELDS_MAP = {
@@ -655,11 +653,6 @@ module Fluent
           insert_id = record.delete(@insert_id_key)
           entry.insert_id = insert_id if insert_id
 
-          # compute_source_location(record)
-          is_json = false
-          puts "cbrew: record: #{record}"
-          puts "cbrew: type before #{record['logging.googleapis.com/sourceLocation'].class}"
-          @in_sl = false
           set_log_entry_fields(record, entry)
           set_payload(entry_level_resource.type, record, entry, is_json)
 
@@ -708,20 +701,6 @@ module Fluent
                           STACKDRIVER_TRACE_ID_REGEXP.match(trace)
       "projects/#{@project_id}/traces/#{trace}"
     end
-
-    # def compute_source_location(record)
-    #   SOURCE_LOCATION_REGEXP.match()
-    #   if record.key?(@source_location_key)
-    #     source_location_string = record[@source_location_key]
-    #     if source_location_string.is_a?(String)
-    #       # Assumes that the string will be in form "<file name>:<line number>"
-    #       source_location_parts = source_location_string.split(':')
-    #       file = source_location_parts[0]
-    #       line = source_location_parts[1]
-    #       record[@source_location_key] = {"file" => file, "line" => line}
-    #     end
-    #   end
-    # end
 
     def construct_log_entry_in_grpc_format(labels,
                                            resource,
@@ -1698,19 +1677,9 @@ module Fluent
       LOG_ENTRY_FIELDS_MAP.each do |field_name, config|
         payload_key, subfields, grpc_class, non_grpc_class = config
         begin
-          @in_sl = false
           payload_key = instance_variable_get(payload_key)
           fields = record[payload_key]
-          if payload_key == @source_location_key
-            @in_sl = true
-            puts "cbrew: IT'S ACTUALLY UGH A #{fields.class}"
-            puts "cbrew: record in slef: #{record}"
-          #   puts "PK: #{payload_key}, record: #{record}"
-          end
-          if fields.nil? 
-            puts "cbrew: deleting #{payload_key} bc nil"
-            record.delete(payload_key)
-          end
+          record.delete(payload_key) if fields.nil?
           next unless fields.is_a?(Hash)
 
           extracted_subfields = subfields.each_with_object({}) \
@@ -1849,16 +1818,10 @@ module Fluent
     end
 
     def parse_string(value)
-      if @in_sl
-        puts "cbrew parsed file: #{value} -> #{value.to_s}"
-      end
       value.to_s
     end
 
     def parse_int(value)
-      if @in_sl
-        puts "cbrew parsed line: #{value} -> #{value.to_i}"
-      end
       value.to_i
     end
 
