@@ -590,7 +590,6 @@ module Fluent
 
     # New method that handles source_location being ingested as a single string
     def compute_source_location(record)
-      SOURCE_LOCATION_REGEXP.match()
       if record.key?('lsn')
         source_location_string = record['lsn']
         if source_location_string.is_a?(String)
