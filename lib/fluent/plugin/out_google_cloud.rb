@@ -588,6 +588,21 @@ module Fluent
       super
     end
 
+    # New method that handles source_location being ingested as a single string
+    def compute_source_location(record)
+      SOURCE_LOCATION_REGEXP.match()
+      if record.key?('lsn')
+        source_location_string = record['lsn']
+        if source_location_string.is_a?(String)
+          # Assumes that the string will be in form "<file name>:<line number>"
+          source_location_parts = source_location_string.split(':')
+          file = source_location_parts[0]
+          line = source_location_parts[1]
+         record[@source_location_key] = {"file" => file, "line" => line}
+        end
+      end
+    end
+
     def write(chunk)
       grouped_entries = group_log_entries_by_tag_and_local_resource_id(chunk)
 
@@ -652,6 +667,8 @@ module Fluent
           entry.span_id = span_id if span_id
           insert_id = record.delete(@insert_id_key)
           entry.insert_id = insert_id if insert_id
+
+          compute_source_location(record)
 
           set_log_entry_fields(record, entry)
           set_payload(entry_level_resource.type, record, entry, is_json)
