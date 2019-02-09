@@ -1682,12 +1682,29 @@ module Fluent
 
     def set_log_entry_fields(record, entry)
       {
-        'insert_id' => @insert_id_key,
-        'span_id' => @span_id_key,
-        'trace' => @trace_key
-      }.each do |field_name, payload_key|
+        'insert_id' => [
+          # The config to specify label name for field extraction from record.
+          '@insert_id_key',
+          # Cast function.
+          'parse_string'
+        ],
+        'span_id' => [
+          # The config to specify label name for field extraction from record.
+          '@span_id_key',
+          # Cast function.
+          'parse_string'
+        ],
+        'trace' => [
+          # The config to specify label name for field extraction from record.
+          '@trace_key',
+          # Cast function.
+          'compute_trace'
+        ]
+      }.each do |field_name, config|
+        payload_key, cast_fn = config
+        payload_key = instance_variable_get(payload_key)
         field_value = record.delete(payload_key)
-        entry.send("#{field_name}=", field_value) if field_value
+        entry.send("#{field_name}=", send(cast_fn, field_value)) if field_value
       end
       LOG_ENTRY_FIELDS_MAP.each do |field_name, config|
         payload_key, subfields, grpc_class, non_grpc_class = config
