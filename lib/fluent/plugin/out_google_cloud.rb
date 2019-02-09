@@ -659,14 +659,6 @@ module Fluent
                                             ts_secs,
                                             ts_nanos)
 
-          trace = record.delete(@trace_key)
-          entry.trace = compute_trace(trace) if trace
-
-          span_id = record.delete(@span_id_key)
-          entry.span_id = span_id if span_id
-          insert_id = record.delete(@insert_id_key)
-          entry.insert_id = insert_id if insert_id
-
           set_log_entry_fields(record, entry)
           set_payload(entry_level_resource.type, record, entry, is_json)
 
@@ -1689,6 +1681,14 @@ module Fluent
     end
 
     def set_log_entry_fields(record, entry)
+      {
+        'insert_id' => @insert_id_key,
+        'span_id' => @span_id_key,
+        'trace' => @trace_key
+      }.each do |field_name, payload_key|
+        field_value = record.delete(payload_key)
+        entry.send("#{field_name}=", field_value) if field_value
+      end
       LOG_ENTRY_FIELDS_MAP.each do |field_name, config|
         payload_key, subfields, grpc_class, non_grpc_class = config
         begin
