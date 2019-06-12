@@ -450,26 +450,26 @@ class GoogleCloudOutputGRPCTest < Test::Unit::TestCase
 
   # Get the fields of the payload.
   def get_fields(payload)
-    payload['fields']
+    payload
   end
 
   # Get the value of a struct field.
   def get_struct(field)
-    field['structValue']
+    field
   end
 
   # Get the value of a string field.
   def get_string(field)
-    field['stringValue']
+    field
   end
 
   # Get the value of a number field.
   def get_number(field)
-    field['numberValue']
+    field
   end
 
   def get_bool(field)
-    field['boolValue']
+    field
   end
 
   # The null value.
@@ -522,25 +522,30 @@ class GoogleCloudOutputGRPCTest < Test::Unit::TestCase
   #   }
   # This method has a different implementation at the REST side.
   def assert_hash_equal_json(expected, actual)
-    error_message = "expected: #{expected}\nactual: #{actual}"
-    assert_true actual.is_a?(Hash),
-                "Expect the actual value to be a hash. #{error_message}"
-    if actual.key?('stringValue')
-      assert_equal expected, get_string(actual), error_message
-    elsif actual.key?('numberValue')
-      assert_equal expected, get_number(actual), error_message
-    elsif actual.key?('boolValue')
-      assert_equal expected, get_bool(actual), error_message
-    elsif actual.key?('structValue')
-      expected_copy = expected.dup
-      get_fields(get_struct(actual)).each do |field_name, nested_actual|
-        assert_hash_equal_json expected_copy[field_name], nested_actual
-        expected_copy.reject! { |k, _| k == field_name }
-      end
-      # Make sure all fields are matched.
-      assert_true expected_copy.empty?
-    else
-      assert_true false, "Unsupported proto format. #{error_message}"
-    end
+    assert_equal expected, actual, "eauql"
+puts "111111111111111"
+puts expected.inspect
+puts actual.inspect
+puts "2222222222"
+    #error_message = "expected: #{expected}\nactual: #{actual}"
+    #assert_true actual.is_a?(Hash),
+    #            "Expect the actual value to be a hash. #{error_message}"
+    #if actual.key?('stringValue')
+    #  assert_equal expected, get_string(actual), error_message
+    #elsif actual.key?('numberValue')
+    #  assert_equal expected, get_number(actual), error_message
+    #elsif actual.key?('boolValue')
+    #  assert_equal expected, get_bool(actual), error_message
+    #elsif actual.key?('structValue')
+    #  expected_copy = expected.dup
+    #  get_fields(get_struct(actual)).each do |field_name, nested_actual|
+    #    assert_hash_equal_json expected_copy[field_name], nested_actual
+    #    expected_copy.reject! { |k, _| k == field_name }
+    #  end
+    #  # Make sure all fields are matched.
+    #  assert_true expected_copy.empty?
+    #else
+    #  assert_true false, "Unsupported proto format. #{error_message}"
+    #end
   end
 end

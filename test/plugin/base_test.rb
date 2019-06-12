@@ -1171,7 +1171,10 @@ module BaseTest
     ) { |_, oldval, newval| oldval.merge(newval) }
     verify_log_entries(1, expected_params) do |entry, i|
       verify_default_log_entry_text(entry['textPayload'], i, entry)
-      assert_equal K8S_SECONDS_EPOCH, entry['timestamp']['seconds'], entry
+puts entry['timestamp'].inspect
+      assert_equal 'jjj', entry['timestamp'].to_s, entry
+      #assert_equal DateTime.strptime(K8S_SECONDS_EPOCH, '%s').strftime("%Y-%m-%dT%H:%M:%S.%NZ").to_s, entry['timestamp'].to_s, entry
+
       assert_equal K8S_NANOS, entry['timestamp']['nanos'], entry
       assert_equal 'ERROR', entry['severity'], entry
     end
