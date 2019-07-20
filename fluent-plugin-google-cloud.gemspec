@@ -19,20 +19,20 @@ eos
   gem.test_files    = gem.files.grep(/^(test)/)
   gem.require_paths = ['lib']
 
-  gem.add_runtime_dependency 'fluentd', '>= 1.4.2'
+  gem.add_runtime_dependency 'fluentd', '1.6.0'
   gem.add_runtime_dependency 'googleapis-common-protos', '1.3.7'
   gem.add_runtime_dependency 'googleauth', '0.8.1'
   gem.add_runtime_dependency 'google-api-client', '0.28.4'
   gem.add_runtime_dependency 'google-cloud-logging', '1.6.0'
-  gem.add_runtime_dependency 'google-protobuf', '>= 3.7.0'
-  gem.add_runtime_dependency 'grpc', '>= 1.14.2'
+  gem.add_runtime_dependency 'google-protobuf', '3.9.0'
+  gem.add_runtime_dependency 'grpc', '1.22.0'
   gem.add_runtime_dependency 'json', '2.1.0'
-  gem.add_runtime_dependency 'cool.io', '>= 1.5.4'
+  gem.add_runtime_dependency 'cool.io', '1.5.4'
 
   gem.add_development_dependency 'mocha', '~> 1.1'
   gem.add_development_dependency 'prometheus-client', '~> 0.8.0'
   gem.add_development_dependency 'rake', '~> 10.3'
   gem.add_development_dependency 'rubocop', '~> 0.39.0'
   gem.add_development_dependency 'test-unit', '~> 3.0'
-  gem.add_development_dependency 'webmock', '~> 2.3.1'
+  gem.add_development_dependency 'webmock', '~> 3.6.0'
 end
